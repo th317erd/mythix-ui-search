@@ -1,0 +1,41 @@
+<!-- Component style in "document" scope -->
+<style data-for="mythix-search">
+  mythix-search {
+    display: flex;
+    position: relative;
+  }
+</style>
+
+<!-- Component style in "shadow" scope -->
+<template data-for="mythix-search">
+  <style>
+    .root-container {
+      display: flex;
+      flex-wrap: wrap;
+      flex-direction: row;
+    }
+
+    .header-container {
+
+    }
+
+    .content-container {
+      display: none;
+    }
+
+    .footer-container {
+
+    }
+  </style>
+
+  <form part="container" class="root-container" onFormData="onFormData" onreset="onReset" onsubmit="onSubmit">
+    <slot part="header" name="header" class="header-container"></slot>
+    <input part="search-field" type="text" name="value" placeholder="@@this.attr('placeholder') || i18n('Mythix.Search.placeholder', '')@@" onkeyup="onSearchKeyUp">
+    <slot part="content-container"></slot>
+    <slot part="footer" name="footer" class="footer-container">
+      <button part="search-button" type="submit">@@i18n('Mythix.Search.buttonCaption', 'Search')@@</button>
+    </slot>
+  </form>
+</template>
+
+<script type="module" src="./mythix-ui-search.js"></script>
