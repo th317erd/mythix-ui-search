@@ -22,6 +22,9 @@ export default class MythixUISearch extends MythixUIComponent {
       if (searchField && searchField.value !== newValue)
         searchField.value = newValue;
 
+      if (this.attr('id'))
+        Utils.globalStoreDynamic(this.attr('id'), newValue);
+
       return newValue;
     });
 
@@ -35,6 +38,7 @@ export default class MythixUISearch extends MythixUIComponent {
 
   mounted() {
     this.currentValue = (this.$searchField && this.$searchField.value) || this.getAttribute('value');
+    this.onSubmit(new SubmitEvent('submit'));
   }
 
   setFormAttribute(name, value) {
@@ -60,39 +64,43 @@ export default class MythixUISearch extends MythixUIComponent {
     return this.$('form')[0];
   }
 
-  set attr$acceptCharset(value) {
+  set attr$value([ value ]) {
+    this.value = (value || '');
+  }
+
+  set attr$acceptCharset([ value ]) {
     this.setFormAttribute('accept-charset', value);
   }
 
-  set attr$autocapitalize(value) {
+  set attr$autocapitalize([ value ]) {
     this.setFormAttribute('autocapitalize', value);
   }
 
-  set attr$autocomplete(value) {
+  set attr$autocomplete([ value ]) {
     this.setFormAttribute('autocomplete', value);
   }
 
-  set attr$rel(value) {
+  set attr$rel([ value ]) {
     this.setFormAttribute('rel', value);
   }
 
-  set attr$action(value) {
+  set attr$action([ value ]) {
     this.setFormAttribute('action', value);
   }
 
-  set attr$disabled(value) {
+  set attr$disabled([ value ]) {
     this.setFormAttribute('disabled', value);
   }
 
-  set attr$enctype(value) {
+  set attr$enctype([ value ]) {
     this.setFormAttribute('enctype', value);
   }
 
-  set attr$method(value) {
+  set attr$method([ value ]) {
     this.setFormAttribute('method', value);
   }
 
-  set attr$novalidate(value) {
+  set attr$novalidate([ value ]) {
     this.setFormAttribute('novalidate', value);
   }
 
@@ -155,7 +163,7 @@ export default class MythixUISearch extends MythixUIComponent {
         let value = this.getAttribute(`data-fetch-${name}`);
         if (isBoolean && value != null)
           options[name] = true;
-        else if (Utils.notNOE(value))
+        else if (Utils.isNotNOE(value))
           options[name] = value;
       };
 
@@ -246,8 +254,8 @@ export default class MythixUISearch extends MythixUIComponent {
 
         this.value = items;
       } else {
-        let callback = Utils.createEventCallback.call(this, action);
-        items = await callback(Utils.globalStoreNameValuePairHelper(
+        let actionCallback = Utils.createContextAwareCallback({ scopes: [ context, this ], body: action });
+        items = await actionCallback(Utils.globalStoreNameValuePairHelper(
           context,
           Components.getIdentifier(this),
           value,
@@ -256,14 +264,13 @@ export default class MythixUISearch extends MythixUIComponent {
 
       items = (!items) ? [] : items;
 
-      if (Utils.notNOE(target)) {
-        let targetCallback = Utils.createEventCallback.call(this, target);
-
+      if (Utils.isNotNOE(target)) {
         let targetContext = {
           ...context,
           items,
         };
 
+        let targetCallback = Utils.createContextAwareCallback({ scopes: [ targetContext, this ], body: target });
         items = await targetCallback(Utils.globalStoreNameValuePairHelper(
           targetContext,
           `${Components.getIdentifier(this)}Items`,
@@ -274,7 +281,7 @@ export default class MythixUISearch extends MythixUIComponent {
       }
 
       this.value = value;
-      this.items = value;
+      this.items = items;
     })();
   }
 
