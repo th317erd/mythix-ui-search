@@ -34,6 +34,7 @@ export default class MythixUISearch extends MythixUIComponent {
     });
 
     this.currentValue = '';
+    this.currentItems = [];
   }
 
   mounted() {
@@ -142,6 +143,10 @@ export default class MythixUISearch extends MythixUIComponent {
     }, new FormData(this.$form, submitter));
   }
 
+  updateItemsFromAction() {
+    // this.currentItems
+  }
+
   onFormData(event) {
     this.dispatchEvent(new FormDataEvent('formdata', event));
   }
@@ -212,7 +217,7 @@ export default class MythixUISearch extends MythixUIComponent {
     if (submitEvent.defaultPrevented)
       return false;
 
-    (async () => {
+    const doSubmitAction = async () => {
       let value   = formData.get('value');
       let context = {
         ...getFetchOptions(),
@@ -228,6 +233,22 @@ export default class MythixUISearch extends MythixUIComponent {
       };
 
       let items;
+
+      const finalizeItems = (_items) => {
+        let items = (!_items) ? [] : _items;
+
+        if (Utils.isType(items, Utils.DynamicProperty, 'DynamicProperty')) {
+          if (this.currentItems && typeof this.currentItems.addEventListener === 'function')
+            this.currentItems.removeEventListener('update', this.onSubmit);
+
+          items.addEventListener('update', this.onSubmit);
+          this.currentItems = items;
+
+          return items.valueOf();
+        }
+
+        return items;
+      };
 
       if (this.isActionUrl(action)) {
         let fetchOptions = {
@@ -262,7 +283,7 @@ export default class MythixUISearch extends MythixUIComponent {
         ));
       }
 
-      items = (!items) ? [] : items;
+      items = finalizeItems(items);
 
       if (Utils.isNotNOE(target)) {
         let targetContext = {
@@ -270,19 +291,23 @@ export default class MythixUISearch extends MythixUIComponent {
           items,
         };
 
-        let targetCallback = Utils.createContextAwareCallback({ scopes: [ targetContext, this ], body: target });
-        items = await targetCallback(Utils.globalStoreNameValuePairHelper(
+        let targetCallback  = Utils.createContextAwareCallback({ scopes: [ targetContext, this ], body: target });
+        let mappedItems     = await targetCallback(Utils.globalStoreNameValuePairHelper(
           targetContext,
           `${Components.getIdentifier(this)}Items`,
           items,
         ));
 
-        items = (!items) ? [] : items;
+        if (mappedItems !== undefined)
+          items = finalizeItems(mappedItems);
       }
 
       this.value = value;
       this.items = items;
-    })();
+    };
+
+    // Only do action when page is ready
+    globalThis.onmythixready = doSubmitAction;
   }
 
   getDebounceTime() {
