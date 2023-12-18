@@ -7,7 +7,7 @@ import {
 const IS_ACTION_URL = /^([\w-]+:\/\/|\.+\/|\/)/;
 const IS_JSON       = /^application\/json/i;
 
-export default class MythixUISearch extends MythixUIComponent {
+export class MythixUISearch extends MythixUIComponent {
   static tagName = 'mythix-search';
 
   constructor() {
@@ -39,6 +39,9 @@ export default class MythixUISearch extends MythixUIComponent {
 
   mounted() {
     this.currentValue = (this.$searchField && this.$searchField.value) || this.getAttribute('value');
+    if (this.$searchField)
+      this.$searchField.value = (this.currentValue || '');
+
     this.onSubmit(new SubmitEvent('submit'));
   }
 
@@ -54,15 +57,15 @@ export default class MythixUISearch extends MythixUIComponent {
   }
 
   get $submitButton() {
-    return this.$({ slotted: true }, 'button').slot('footer')[0];
+    return this.select({ slotted: true }, 'button').slot('footer')[0];
   }
 
   get $searchField() {
-    return this.$('input[name="value"]')[0];
+    return this.select('input[name="value"]')[0];
   }
 
   get $form() {
-    return this.$('form')[0];
+    return this.select('form')[0];
   }
 
   set attr$value([ value ]) {
@@ -127,7 +130,7 @@ export default class MythixUISearch extends MythixUIComponent {
   }
 
   getFormData(submitter) {
-    let inputs = this.$('input,object,select,textarea');
+    let inputs = this.select('input,object,select,textarea');
     return inputs.reduce((data, input) => {
       let name = input.getAttribute('name');
       if (!name)
@@ -275,7 +278,7 @@ export default class MythixUISearch extends MythixUIComponent {
 
         this.value = items;
       } else {
-        let actionCallback = Utils.createContextAwareCallback({ scopes: [ context, this ], body: action });
+        let actionCallback = Utils.createTemplateMacro({ scope: Utils.createScope(context, this), body: action });
         items = await actionCallback(Utils.globalStoreNameValuePairHelper(
           context,
           Components.getIdentifier(this),
@@ -291,7 +294,7 @@ export default class MythixUISearch extends MythixUIComponent {
           items,
         };
 
-        let targetCallback  = Utils.createContextAwareCallback({ scopes: [ targetContext, this ], body: target });
+        let targetCallback  = Utils.createTemplateMacro({ scope: Utils.createScope(targetContext, this), body: target });
         let mappedItems     = await targetCallback(Utils.globalStoreNameValuePairHelper(
           targetContext,
           `${Components.getIdentifier(this)}Items`,
