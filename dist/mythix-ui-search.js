@@ -2,7 +2,7 @@ import {
   MythixUIComponent,
   Utils,
   Components,
-} from 'mythix-ui-core';
+} from '@cdn/mythix-ui-core@1';
 
 const IS_ACTION_URL = /^([\w-]+:\/\/|\.+\/|\/)/;
 const IS_JSON       = /^application\/json/i;
@@ -38,6 +38,8 @@ export class MythixUISearch extends MythixUIComponent {
   }
 
   mounted() {
+    super.mounted();
+
     this.currentValue = (this.$searchField && this.$searchField.value) || this.getAttribute('value');
     if (this.$searchField)
       this.$searchField.value = (this.currentValue || '');
@@ -240,7 +242,7 @@ export class MythixUISearch extends MythixUIComponent {
       const finalizeItems = (_items) => {
         let items = (!_items) ? [] : _items;
 
-        if (Utils.isType(items, Utils.DynamicProperty, 'DynamicProperty')) {
+        if (Utils.isType(items, Utils.DynamicProperty)) {
           if (this.currentItems && typeof this.currentItems.addEventListener === 'function')
             this.currentItems.removeEventListener('update', this.onSubmit);
 
