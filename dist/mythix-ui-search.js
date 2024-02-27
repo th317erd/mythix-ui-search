@@ -1,7 +1,9 @@
 import {
   MythixUIComponent,
+  BaseUtils,
   Utils,
   Components,
+  DynamicProperty,
 } from '@cdn/mythix-ui-core@1';
 
 const IS_ACTION_URL = /^([\w-]+:\/\/|\.+\/|\/)/;
@@ -173,7 +175,7 @@ export class MythixUISearch extends MythixUIComponent {
         let value = this.getAttribute(`data-fetch-${name}`);
         if (isBoolean && value != null)
           options[name] = true;
-        else if (Utils.isNotNOE(value))
+        else if (BaseUtils.isNotNOE(value))
           options[name] = value;
       };
 
@@ -242,7 +244,7 @@ export class MythixUISearch extends MythixUIComponent {
       const finalizeItems = (_items) => {
         let items = (!_items) ? [] : _items;
 
-        if (Utils.isType(items, Utils.DynamicProperty)) {
+        if (BaseUtils.isType(items, DynamicProperty)) {
           if (this.currentItems && typeof this.currentItems.addEventListener === 'function')
             this.currentItems.removeEventListener('update', this.onSubmit);
 
@@ -290,7 +292,7 @@ export class MythixUISearch extends MythixUIComponent {
 
       items = finalizeItems(items);
 
-      if (Utils.isNotNOE(target)) {
+      if (BaseUtils.isNotNOE(target)) {
         let targetContext = {
           ...context,
           items,
