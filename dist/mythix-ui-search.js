@@ -2,7 +2,7 @@ import {
   MythixUIComponent,
   BaseUtils,
   Utils,
-  Components,
+  ComponentUtils,
   DynamicProperty,
 } from '@cdn/mythix-ui-core@1';
 
@@ -15,7 +15,7 @@ export class MythixUISearch extends MythixUIComponent {
   constructor() {
     super();
 
-    this.dynamicProp('value', '', (newValue) => {
+    this.defineDynamicProp('value', '', (newValue) => {
       // setter
 
       this.currentValue = newValue;
@@ -30,7 +30,7 @@ export class MythixUISearch extends MythixUIComponent {
       return newValue;
     });
 
-    this.dynamicProp('items', [], (newValue) => {
+    this.defineDynamicProp('items', [], (newValue) => {
       // setter
       return newValue;
     });
@@ -271,7 +271,7 @@ export class MythixUISearch extends MythixUIComponent {
           fetchOptions.body = formData;
         }
 
-        let { response }  = await Components.require(this.ownerDocument || document, action, { fetchOptions });
+        let { response }  = await ComponentUtils.require(this.ownerDocument || document, action, { fetchOptions });
         let forcedType    = this.getAttribute('data-content-type');
 
         if (response.ok) {
@@ -285,7 +285,7 @@ export class MythixUISearch extends MythixUIComponent {
         let actionCallback = Utils.createTemplateMacro({ scope: Utils.createScope(context, this), body: action });
         items = await actionCallback(Utils.globalStoreNameValuePairHelper(
           context,
-          Components.getIdentifier(this),
+          ComponentUtils.getIdentifier(this),
           value,
         ));
       }
@@ -301,7 +301,7 @@ export class MythixUISearch extends MythixUIComponent {
         let targetCallback  = Utils.createTemplateMacro({ scope: Utils.createScope(targetContext, this), body: target });
         let mappedItems     = await targetCallback(Utils.globalStoreNameValuePairHelper(
           targetContext,
-          `${Components.getIdentifier(this)}Items`,
+          `${ComponentUtils.getIdentifier(this)}Items`,
           items,
         ));
 
