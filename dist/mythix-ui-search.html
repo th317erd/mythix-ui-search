@@ -28,9 +28,9 @@
     }
   </style>
 
-  <form part="container" class="root-container" onFormData="onFormData" onreset="onReset" onsubmit="onSubmit">
+  <form part="container" class="root-container" data-event-onFormData="onFormData" data-event-onreset="onReset" data-event-onsubmit="onSubmit">
     <slot part="header" name="header" class="header-container"></slot>
-    <input part="search-field" type="text" name="value" placeholder="@@this.attr('placeholder') || i18n('Mythix.Search.placeholder', '')@@" onkeyup="onSearchKeyUp">
+    <input part="search-field" type="text" name="value" placeholder="@@this.attr('placeholder') || i18n('Mythix.Search.placeholder', '')@@" data-event-onkeyup="onSearchKeyUp">
     <slot part="content-container"></slot>
     <slot part="footer" name="footer" class="footer-container">
       <button part="search-button" type="submit">@@i18n('Mythix.Search.buttonCaption', 'Search')@@</button>
